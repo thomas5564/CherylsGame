@@ -1,0 +1,94 @@
+import pygame
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the display
+width = 1500
+height = 700
+window = pygame.display.set_mode((width, height))
+pygame.display.set_caption('CHERYL')
+
+# Load the background image
+bg = pygame.image.load('cherylforest.jpg')
+bgWidth = bg.get_width()
+x = 0
+
+new_size = (100, 100)  # Example size, adjust as needed
+dogs = []
+# Load and resize the images
+for i in range(0, 4):
+    image = pygame.image.load("spritesheet/dog" + str(i + 1) + ".png")
+    resized_image = pygame.transform.scale(image, new_size)
+    dogs.append(resized_image)
+dogs.append(pygame.image.load("spritesheet/dog5.jpeg"))
+
+# Create a clock object to manage the frame rate
+clock = pygame.time.Clock()
+
+# Initial position and velocity for the dog
+dog_x = 100
+dog_y = 600
+velocity_y = 0
+gravity = 0.5
+jump_strength = -10
+is_jumping = False
+
+# Function to display the dog
+def displaydog(i, state):
+    if state == 'run':
+        window.blit(dogs[i], (dog_x, dog_y))
+    elif state == 'jump':
+        window.blit(dogs[4], (dog_x, dog_y))
+
+n = 0
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not is_jumping:
+                is_jumping = True
+                velocity_y = jump_strength
+    
+    # Apply gravity
+    if is_jumping:
+        velocity_y += gravity
+        dog_y += velocity_y
+        
+        # If the dog lands on the ground, stop the jump
+        if dog_y >= 600:
+            dog_y = 600
+            is_jumping = False
+            velocity_y = 0
+
+    # Draw the background image
+    window.blit(bg, (x, 0))
+    window.blit(bg, (x + bgWidth, 0))
+
+    if x < -bgWidth:
+        x = 0
+    else:
+        x -= 2
+
+    # Update the dog's animation frame
+    if n == 30:
+        n = 0
+    else:
+        n += 1
+
+    # Display the dog in the appropriate state
+    if is_jumping:
+        displaydog(4, 'jump')
+    else:
+        displaydog(n // 10, 'run')
+
+    # Update the display
+    pygame.display.flip()
+    
+    # Cap the frame rate at 60 FPS
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
